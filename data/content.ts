@@ -1,10 +1,10 @@
 export const needs = [
   { label: "Quero transformar meu sorriso", treatment: "Lentes de contato & estética" },
-  { label: "Preciso substituir um dente", treatment: "Implantes & reabilitação" },
+  { label: "Tenho um dente perdido", treatment: "Implantes & reabilitação" },
   { label: "Quero alinhar meus dentes", treatment: "Ortodontia digital" },
   { label: "Quero melhorar a estética", treatment: "Harmonização do sorriso" },
-  { label: "Estou com dor", treatment: "Diagnóstico & cuidado imediato" },
-  { label: "Quero cuidar melhor da saúde bucal", treatment: "Prevenção personalizada" },
+  { label: "Tenho manchas ou alteração de cor", treatment: "Clareamento personalizado" },
+  { label: "Estou sentindo dor ou desconforto", treatment: "Diagnóstico & cuidado imediato" },
 ];
 
 export const treatments = [
@@ -23,6 +23,13 @@ export const professionals = [
 ];
 
 export const journey = ["Primeira conversa", "Avaliação", "Diagnóstico", "Planejamento", "Tratamento", "Acompanhamento"];
+
+export const metrics = [
+  { value: "15+", label: "anos de experiência" },
+  { value: "5.000+", label: "pacientes atendidos" },
+  { value: "4,9/5", label: "avaliação média" },
+  { value: "100%", label: "planejamento personalizado" },
+];
 
 export const faqs = [
   ["Como funciona a primeira avaliação?", "Começamos por uma conversa cuidadosa sobre suas necessidades. Em seguida, realizamos exame clínico e, quando indicado, registros digitais para construir um diagnóstico completo."],
