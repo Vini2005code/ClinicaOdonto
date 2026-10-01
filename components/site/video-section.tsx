@@ -2,64 +2,61 @@
 
 import { KeyboardEvent, PointerEvent, useEffect, useRef } from "react";
 
-const EDGE_INSET = 24;
+const FRAMES = Array.from(
+  { length: 16 },
+  (_, index) => `/images/orthodontic-sequence/frame-${String(index + 1).padStart(2, "0")}.webp`,
+);
+
+const phases = [
+  { until: 0.28, label: "Diagnóstico digital" },
+  { until: 0.72, label: "Planejamento ortodôntico" },
+  { until: 1, label: "Projeção final" },
+];
 
 export function VideoSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const scrubberRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+  const phaseRef = useRef<HTMLSpanElement>(null);
   const progressRef = useRef(0);
-  const pendingRef = useRef(0);
-  const frameRequestRef = useRef<number | null>(null);
+  const frameIndexRef = useRef(0);
   const draggingRef = useRef(false);
-  const grabOffsetRef = useRef(0);
+  const preloadedFramesRef = useRef<HTMLImageElement[]>([]);
 
   const renderProgress = (value: number) => {
     const progress = Math.min(1, Math.max(0, value));
+    const frameIndex = Math.round(progress * (FRAMES.length - 1));
+    const phase = phases.find((item) => progress <= item.until) ?? phases[2];
     progressRef.current = progress;
-    pendingRef.current = progress;
     frameRef.current?.style.setProperty("--scrub-progress", String(progress));
-    scrubberRef.current?.setAttribute("aria-valuenow", String(Math.round(progress * 100)));
-    scrubberRef.current?.setAttribute("aria-valuetext", `${Math.round(progress * 100)}% da transformação`);
+    frameRef.current?.setAttribute("aria-valuenow", String(frameIndex));
+    frameRef.current?.setAttribute("aria-valuetext", `Etapa ${frameIndex + 1} de ${FRAMES.length}: ${phase.label}`);
 
-    if (frameRequestRef.current !== null) return;
-    frameRequestRef.current = requestAnimationFrame(() => {
-      frameRequestRef.current = null;
-      const video = videoRef.current;
-      if (!video || !Number.isFinite(video.duration) || video.duration <= 0) return;
-      video.pause();
-      const target = Math.min(video.duration, video.duration * pendingRef.current);
-      try {
-        if (Math.abs(video.currentTime - target) > 0.008) video.currentTime = target;
-      } catch {
-        // The pending position is applied as soon as metadata becomes available.
-      }
-    });
+    if (frameIndex !== frameIndexRef.current && imageRef.current) {
+      frameIndexRef.current = frameIndex;
+      imageRef.current.src = FRAMES[frameIndex];
+    }
+
+    if (phaseRef.current) phaseRef.current.textContent = phase.label;
   };
 
   const progressFromPointer = (clientX: number) => {
     const frame = frameRef.current;
     if (!frame) return progressRef.current;
     const rect = frame.getBoundingClientRect();
-    const inset = Math.min(EDGE_INSET, rect.width * 0.06);
-    const usableWidth = Math.max(1, rect.width - inset * 2);
-    return (clientX - grabOffsetRef.current - rect.left - inset) / usableWidth;
+    return (clientX - rect.left) / Math.max(1, rect.width);
   };
 
   const startScrubbing = (event: PointerEvent<HTMLDivElement>) => {
-    const handleRect = event.currentTarget.getBoundingClientRect();
-    grabOffsetRef.current = event.clientX - (handleRect.left + handleRect.width / 2);
     draggingRef.current = true;
     event.currentTarget.setPointerCapture(event.pointerId);
-    event.currentTarget.classList.add("is-dragging");
-    frameRef.current?.classList.add("is-scrubbing");
+    event.currentTarget.classList.add("is-scrubbing");
     event.currentTarget.focus({ preventScroll: true });
+    renderProgress(progressFromPointer(event.clientX));
   };
 
   const moveScrubber = (event: PointerEvent<HTMLDivElement>) => {
     if (!draggingRef.current) return;
-    event.preventDefault();
     renderProgress(progressFromPointer(event.clientX));
   };
 
@@ -67,88 +64,99 @@ export function VideoSection() {
     if (!draggingRef.current) return;
     draggingRef.current = false;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-    event.currentTarget.classList.remove("is-dragging");
-    frameRef.current?.classList.remove("is-scrubbing");
-    renderProgress(progressRef.current);
+    event.currentTarget.classList.remove("is-scrubbing");
   };
 
   const controlWithKeyboard = (event: KeyboardEvent<HTMLDivElement>) => {
-    const steps: Record<string, number> = { ArrowLeft: -.02, ArrowDown: -.02, ArrowRight: .02, ArrowUp: .02, PageDown: -.1, PageUp: .1 };
+    const step = 1 / (FRAMES.length - 1);
+    const directions: Record<string, number> = {
+      ArrowLeft: -step,
+      ArrowDown: -step,
+      ArrowRight: step,
+      ArrowUp: step,
+      PageDown: -step * 4,
+      PageUp: step * 4,
+    };
     if (event.key === "Home" || event.key === "End") {
       event.preventDefault();
       renderProgress(event.key === "Home" ? 0 : 1);
       return;
     }
-    if (steps[event.key] === undefined) return;
+    if (directions[event.key] === undefined) return;
     event.preventDefault();
-    renderProgress(progressRef.current + steps[event.key]);
+    renderProgress(progressRef.current + directions[event.key]);
   };
 
   useEffect(() => {
     const section = sectionRef.current;
-    const scrubber = scrubberRef.current;
-    const video = videoRef.current;
-    if (!section || !scrubber || !video) return;
+    const frame = frameRef.current;
+    if (!section || !frame) return;
+
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let timer: ReturnType<typeof setTimeout> | undefined;
+    let hintTimer: ReturnType<typeof setTimeout> | undefined;
     const loadObserver = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
-      video.src = "/media/aura-protese.mp4";
-      video.load();
+      FRAMES.slice(1).forEach((src) => {
+        const image = new Image();
+        image.decoding = "async";
+        image.src = src;
+        preloadedFramesRef.current.push(image);
+      });
       loadObserver.disconnect();
-    }, { rootMargin: "400px 0px" });
-    const observer = new IntersectionObserver(([entry]) => {
+    }, { rootMargin: "600px 0px" });
+
+    const hintObserver = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
-      observer.disconnect();
+      hintObserver.disconnect();
       if (!reducedMotion) {
-        timer = setTimeout(() => {
-          scrubber.classList.add("is-hinting");
-          scrubber.addEventListener("animationend", () => scrubber.classList.remove("is-hinting"), { once: true });
-        }, 280);
+        hintTimer = setTimeout(() => {
+          frame.classList.add("is-hinting");
+          frame.addEventListener("animationend", () => frame.classList.remove("is-hinting"), { once: true });
+        }, 240);
       }
-    }, { threshold: .35 });
+    }, { threshold: 0.35 });
+
     loadObserver.observe(section);
-    observer.observe(section);
+    hintObserver.observe(section);
     return () => {
       loadObserver.disconnect();
-      observer.disconnect();
-      if (timer) clearTimeout(timer);
-      if (frameRequestRef.current !== null) cancelAnimationFrame(frameRequestRef.current);
+      hintObserver.disconnect();
+      if (hintTimer) clearTimeout(hintTimer);
+      preloadedFramesRef.current = [];
     };
   }, []);
 
   return <section className="precision-film section-dark" id="precisao" ref={sectionRef} data-reveal>
-    <div className="film-copy"><p className="eyebrow light">Ortodontia de alta precisão</p><h2>Precisão em<br /><em>cada detalhe.</em></h2><p>Movimentos pequenos exigem decisões exatas. Planejamos cada etapa para alinhar função, estética e previsibilidade.</p><span>Planejamento digital · acompanhamento contínuo</span></div>
+    <div className="film-copy"><p className="eyebrow light">Ortodontia de alta precisão</p><h2>Precisão em<br /><em>cada detalhe.</em></h2><p>Explore uma simulação visual do planejamento ortodôntico. Cada etapa traduz como pequenas decisões constroem um resultado mais previsível.</p><span>Planejamento digital · acompanhamento contínuo</span></div>
     <div className="film-experience">
-      <div className="film-frame" ref={frameRef} style={{ "--scrub-progress": 0 } as React.CSSProperties}>
-        <div className="film-index">Transformação clínica / 02</div>
-        <video ref={videoRef} muted playsInline preload="none" disablePictureInPicture aria-label="Transformação ortodôntica controlada pelo usuário" onLoadedMetadata={() => renderProgress(pendingRef.current)} />
+      <div
+        className="film-frame"
+        ref={frameRef}
+        role="slider"
+        tabIndex={0}
+        aria-label="Explorar as etapas de uma simulação ortodôntica"
+        aria-valuemin={0}
+        aria-valuemax={FRAMES.length - 1}
+        aria-valuenow={0}
+        aria-valuetext={`Etapa 1 de ${FRAMES.length}: ${phases[0].label}`}
+        style={{ "--scrub-progress": 0 } as React.CSSProperties}
+        onPointerDown={startScrubbing}
+        onPointerMove={moveScrubber}
+        onPointerUp={stopScrubbing}
+        onPointerCancel={stopScrubbing}
+        onLostPointerCapture={() => {
+          draggingRef.current = false;
+          frameRef.current?.classList.remove("is-scrubbing");
+        }}
+        onKeyDown={controlWithKeyboard}
+      >
+        <div className="film-index"><small>Simulação visual / 02</small><span ref={phaseRef}>{phases[0].label}</span></div>
+        <img ref={imageRef} src={FRAMES[0]} width={864} height={480} loading="lazy" decoding="async" draggable={false} alt="Simulação demonstrativa da evolução de um planejamento ortodôntico" />
         <div className="film-mask" />
-        <div className="film-scrub-track">
-          <div
-            ref={scrubberRef}
-            className="film-scrubber"
-            role="slider"
-            tabIndex={0}
-            aria-label="Controlar transformação ortodôntica"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={0}
-            aria-valuetext="0% da transformação"
-            onPointerDown={startScrubbing}
-            onPointerMove={moveScrubber}
-            onPointerUp={stopScrubbing}
-            onPointerCancel={stopScrubbing}
-            onLostPointerCapture={() => {
-              draggingRef.current = false;
-              scrubberRef.current?.classList.remove("is-dragging");
-              frameRef.current?.classList.remove("is-scrubbing");
-            }}
-            onKeyDown={controlWithKeyboard}
-          ><span /></div>
-        </div>
+        <div className="film-scrubber" aria-hidden="true"><span /></div>
+        <div className="film-drag-cue" aria-hidden="true"><i>←</i> Arraste para explorar <i>→</i></div>
       </div>
-      <div className="film-scrub-meta" aria-hidden="true"><span>Início</span><small>Explore a transformação</small><span>Resultado</span></div>
+      <div className="film-scrub-meta" aria-hidden="true"><span>Diagnóstico</span><small>Simulação interativa</small><span>Projeção</span></div>
     </div>
   </section>;
 }
