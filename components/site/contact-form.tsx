@@ -21,6 +21,8 @@ export function ContactForm() {
     </label>
     <label>Mensagem <span>opcional</span><textarea name="message" rows={3} placeholder="Conte-nos brevemente o que você busca." /></label>
     <button className="button button-light" type="submit">Solicitar contato <ArrowRight size={17} /></button>
-    {sent && <p className="form-success" role="status"><Check size={16} /> Simulação concluída. Em um site real, a equipe entraria em contato.</p>}
+    <div className="form-feedback" aria-live="polite">
+      {sent && <p className="form-success" role="status"><Check size={16} /> Simulação concluída. Em um site real, a equipe entraria em contato.</p>}
+    </div>
   </form>;
 }

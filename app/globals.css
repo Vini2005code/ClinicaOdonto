@@ -44,3 +44,21 @@ footer{padding:75px clamp(22px,8vw,130px) 30px;background:#e7e1d6;display:grid;g
 html{scroll-padding-top:78px} :focus-visible{outline:2px solid var(--focus);outline-offset:4px}.skip-link{position:fixed;z-index:100;left:18px;top:14px;padding:11px 15px;background:#fff;color:var(--ink);transform:translateY(-160%);transition:transform .2s}.skip-link:focus{transform:none}.brand small{font-size:.68rem;letter-spacing:.15em;opacity:.76}.scroll-note,.hero-index{font-size:.7rem}.scroll-note svg{animation:none}[data-reveal]{transform:translateY(18px);transition-duration:.6s}.technology{display:block}.tech-lead{display:grid;grid-template-columns:.45fr 1.2fr .7fr;gap:5vw;align-items:end}.tech-lead h2{margin:0}.tech-lead>p:last-child{max-width:480px;color:var(--muted);font-size:1.05rem;margin:0 0 8px}.tech-points{margin-top:72px}.testimonial>.eyebrow{margin-bottom:42px}.testimonial>div span{font-size:.8rem}.form-disclaimer{font-size:.72rem;color:#a9bcb5;margin:0 0 24px}.treatment-list a{min-width:44px;min-height:44px}.mobile-menu{box-shadow:0 20px 40px rgba(7,20,16,.12)}
 @media(max-width:980px){.tech-lead{grid-template-columns:1fr;gap:18px}.tech-lead h2{margin:18px 0}.tech-points{margin-top:48px}}
 @media(max-width:640px){.hero h1{font-size:clamp(2.85rem,13vw,4.4rem);line-height:.96}.hero-content{padding-top:54px}.tech-points{margin-top:40px}.testimonial>.eyebrow{margin-bottom:30px}.treatment-list article{grid-template-columns:38px 1fr 44px}.treatment-list a{width:44px;height:44px}.mobile-bar a{min-height:58px}}
+
+/* Final speed and interaction pass */
+[data-reveal],[data-reveal].revealed{opacity:1;transform:none;transition:none}
+.site-header{transition:height .22s ease,background-color .22s ease,border-color .22s ease,color .22s ease}
+.site-header.is-compact{background:rgba(250,248,243,.97);backdrop-filter:blur(10px)}
+.hero h1{animation:heroInFast .46s .02s both}
+.hero-copy{animation:heroInFast .46s .08s both}
+.hero-actions{animation:heroInFast .46s .14s both}
+.button,.nav-cta,.text-link svg,.needs-list button,.needs-list button svg,.treatment-list article,.treatment-list a{transition-duration:.18s}
+.mega-menu.is-open,.mobile-menu{animation:menuIn .16s cubic-bezier(.22,.75,.25,1) both}
+.mega-grid>a{grid-template-columns:42px 1fr}.mega-number{font-size:.68rem;letter-spacing:.14em;color:#74817c}
+.clinic-panel{background:rgba(16,43,38,.97);backdrop-filter:none}
+.form-feedback{min-height:28px;margin-top:16px}
+.form-success{margin:0;animation:messageIn .2s cubic-bezier(.22,.75,.25,1) both}
+@keyframes heroInFast{from{opacity:0;transform:translate3d(0,12px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes menuIn{from{opacity:0;transform:translate3d(0,-6px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes messageIn{from{opacity:0;transform:translate3d(0,6px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@media(prefers-reduced-motion:reduce){.hero h1,.hero-copy,.hero-actions,.mega-menu.is-open,.mobile-menu,.form-success{animation:none!important}}
