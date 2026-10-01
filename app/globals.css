@@ -84,3 +84,20 @@ html{scroll-padding-top:78px} :focus-visible{outline:2px solid var(--focus);outl
 @keyframes sequenceHint{0%,100%{transform:translateX(-50%)}38%{transform:translateX(calc(-50% + 26px))}72%{transform:translateX(calc(-50% + 8px))}}
 @media(max-width:640px){.film-frame{aspect-ratio:4/3}.film-frame img{transform:scale(1.04)}.film-index{left:20px;top:20px}.film-drag-cue{bottom:18px;font-size:.52rem;padding:8px 10px}.film-scrubber{top:14px;bottom:14px}}
 @media(prefers-reduced-motion:reduce){.film-frame.is-hinting .film-scrubber{animation:none!important}.film-drag-cue{transition:none}}
+
+/* Stronger editorial contrast for the opening narrative and needs flow. */
+.manifesto .eyebrow{color:#214d44}
+.manifesto h2 em{color:#234f46}
+.manifesto>div:last-child>p{color:#343b38}
+.needs{background:#eef1ed}
+.needs .eyebrow{color:#214d44}
+.needs .section-head>p{color:#46504b}
+.needs-list{border-color:rgba(16,43,38,.28)}
+.needs-list button{color:#3f4844;border-color:rgba(16,43,38,.22)}
+.needs-list button span{color:#5e6b65}
+.needs-list button:hover,.needs-list button[aria-selected=true]{background:#dde5df;color:var(--green-deep);box-shadow:inset 3px 0 0 var(--green)}
+.needs-list button[aria-selected=true] span{color:#214d44}
+.needs-list button svg{color:var(--green)}
+.need-result>span{color:#c8d9d3}
+.need-result p{color:rgba(255,255,255,.84)}
+.need-result .text-link{border-color:rgba(255,255,255,.62)}
