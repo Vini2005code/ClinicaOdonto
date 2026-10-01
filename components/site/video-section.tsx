@@ -87,9 +87,16 @@ export function VideoSection() {
   useEffect(() => {
     const section = sectionRef.current;
     const scrubber = scrubberRef.current;
-    if (!section || !scrubber) return;
+    const video = videoRef.current;
+    if (!section || !scrubber || !video) return;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    const loadObserver = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      video.src = "/media/aura-protese.mp4";
+      video.load();
+      loadObserver.disconnect();
+    }, { rootMargin: "400px 0px" });
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
       observer.disconnect();
@@ -100,8 +107,10 @@ export function VideoSection() {
         }, 280);
       }
     }, { threshold: .35 });
+    loadObserver.observe(section);
     observer.observe(section);
     return () => {
+      loadObserver.disconnect();
       observer.disconnect();
       if (timer) clearTimeout(timer);
       if (frameRequestRef.current !== null) cancelAnimationFrame(frameRequestRef.current);
@@ -113,7 +122,7 @@ export function VideoSection() {
     <div className="film-experience">
       <div className="film-frame" ref={frameRef} style={{ "--scrub-progress": 0 } as React.CSSProperties}>
         <div className="film-index">Transformação clínica / 02</div>
-        <video ref={videoRef} src="/media/aura-protese.mp4" muted playsInline preload="auto" disablePictureInPicture aria-label="Transformação ortodôntica controlada pelo usuário" onLoadedMetadata={() => renderProgress(pendingRef.current)} />
+        <video ref={videoRef} muted playsInline preload="none" disablePictureInPicture aria-label="Transformação ortodôntica controlada pelo usuário" onLoadedMetadata={() => renderProgress(pendingRef.current)} />
         <div className="film-mask" />
         <div className="film-scrub-track">
           <div

@@ -24,13 +24,6 @@ export const professionals = [
 
 export const journey = ["Primeira conversa", "Avaliação", "Diagnóstico", "Planejamento", "Tratamento", "Acompanhamento"];
 
-export const metrics = [
-  { value: "15+", label: "anos de experiência" },
-  { value: "5.000+", label: "pacientes atendidos" },
-  { value: "4,9/5", label: "avaliação média" },
-  { value: "100%", label: "planejamento personalizado" },
-];
-
 export const faqs = [
   ["Como funciona a primeira avaliação?", "Começamos por uma conversa cuidadosa sobre suas necessidades. Em seguida, realizamos exame clínico e, quando indicado, registros digitais para construir um diagnóstico completo."],
   ["Quanto tempo dura uma consulta?", "A primeira avaliação costuma durar de 60 a 90 minutos. Reservamos esse tempo para ouvir, examinar e explicar cada possibilidade com tranquilidade."],
