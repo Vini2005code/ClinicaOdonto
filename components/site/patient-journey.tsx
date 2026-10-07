@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
 
 const steps = [
   { title: "Primeira conversa", detail: "Escutamos suas prioridades e esclarecemos o que você espera do cuidado.", image: "/images/hero-aura.webp", alt: "Conversa inicial em ambiente clínico" },
@@ -16,38 +15,57 @@ const steps = [
 export function PatientJourney() {
   const [active, setActive] = useState(0);
   const listRef = useRef<HTMLOListElement>(null);
-  const reduceMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const items = listRef.current?.querySelectorAll<HTMLElement>("[data-journey-step]");
-    if (!items?.length || !('IntersectionObserver' in window)) return;
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (visible) setActive(Number((visible.target as HTMLElement).dataset.journeyStep));
-    }, { rootMargin: "-25% 0px -45% 0px", threshold: [0, 0.25, 0.5, 0.75] });
-    items.forEach((item) => observer.observe(item));
-    return () => observer.disconnect();
+    const items = Array.from(listRef.current?.querySelectorAll<HTMLElement>("[data-journey-step]") ?? []);
+    if (!items.length) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const section = sectionRef.current?.getBoundingClientRect();
+      if (!section || section.top > window.innerHeight || section.bottom < 0) return;
+      const readingLine = window.innerHeight * (window.innerWidth <= 640 ? 0.65 : 0.5);
+      let nearest = 0;
+      let nearestDistance = Infinity;
+      items.forEach((item, index) => {
+        const rect = item.getBoundingClientRect();
+        const distance = Math.abs(rect.top + rect.height / 2 - readingLine);
+        if (distance < nearestDistance) {
+          nearest = index;
+          nearestDistance = distance;
+        }
+      });
+      setActive((previous) => previous === nearest ? previous : nearest);
+    };
+    const scheduleUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+    scheduleUpdate();
+    return () => {
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   const current = steps[active];
   return (
-    <section className="journey section-dark" id="jornada">
+    <section className="journey section-dark" id="jornada" ref={sectionRef}>
       <div className="section-head light"><div><p className="eyebrow light">Sua jornada</p><h2>Clareza em cada etapa.</h2></div><p>Você sabe o que acontece, por que acontece e qual é o próximo passo.</p></div>
       <div className="journey-layout">
         <ol className="journey-steps" ref={listRef}>
           {steps.map((step, i) => <li key={step.title} data-journey-step={i} className={active === i ? "is-active" : ""}>
             <span className="journey-step-number">{String(i + 1).padStart(2, "0")}</span>
-            <div><h3>{step.title}</h3><p>{step.detail}</p></div>
+            <div><h3><button type="button" className="journey-step-trigger" aria-current={active === i ? "step" : undefined} onClick={() => setActive(i)}>{step.title}</button></h3><p>{step.detail}</p></div>
           </li>)}
         </ol>
         <div className="journey-visual" aria-live="off">
-          <LazyMotion features={domAnimation} strict>
-            <AnimatePresence initial={false} mode="sync">
-              <m.div key={current.image} className="journey-visual-frame" initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={reduceMotion ? undefined : { opacity: 0 }} transition={{ duration: 0.32, ease: "easeOut" }}>
-                <Image src={current.image} alt={current.alt} fill unoptimized sizes="(max-width: 900px) 90vw, 42vw" />
-              </m.div>
-            </AnimatePresence>
-          </LazyMotion>
+          {steps.map((step, i) => <div key={step.image} className={`journey-visual-frame ${active === i ? "is-active" : ""}`} aria-hidden={active !== i}>
+            <Image src={step.image} alt={step.alt} fill unoptimized loading="lazy" sizes="(max-width: 900px) 90vw, 42vw" />
+          </div>)}
           <div className="journey-visual-caption" aria-hidden="true"><span>AURA / ETAPA {String(active + 1).padStart(2, "0")}</span><span>{current.title}</span></div>
         </div>
       </div>
