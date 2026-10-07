@@ -2,32 +2,14 @@
 
 import { useEffect, useRef, useState, type ComponentType, type PointerEvent } from "react";
 import { ArrowUpRight } from "lucide-react";
+import type { DitherVeilProps } from "./dither-veil";
 
-/** Match this interface to the supplied DitherVeil implementation when it arrives. */
-export type DitherVeilProps = {
-  src: string;
-  fit: "cover";
-  pattern: "noise";
-  pixelSize: number;
-  levels: number;
-  inkColor: string;
-  paperColor: string;
-  contrast: number;
-  revealRadius: number;
-  softness: number;
-  linger: number;
-  rimColor: string;
-  rim: number;
-  clickBurst: boolean;
-};
+const cleanSmileSrc = "/images/sorriso-editorial-aura.webp";
 
-type Props = {
-  DitherVeil?: ComponentType<DitherVeilProps>;
-  cleanSmileSrc?: string;
-};
-
-export function InteractiveSmileReveal({ DitherVeil, cleanSmileSrc }: Props) {
-  const hasWebGL = Boolean(DitherVeil && cleanSmileSrc);
+export function InteractiveSmileReveal() {
+  const [DitherVeil, setDitherVeil] = useState<ComponentType<DitherVeilProps> | null>(null);
+  const [webglReady, setWebglReady] = useState(false);
+  const [webglUnavailable, setWebglUnavailable] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [fullyRevealed, setFullyRevealed] = useState(false);
   const [peeking, setPeeking] = useState(false);
@@ -36,6 +18,30 @@ export function InteractiveSmileReveal({ DitherVeil, cleanSmileSrc }: Props) {
 
   useEffect(() => () => {
     if (lingerTimer.current !== null) window.clearTimeout(lingerTimer.current);
+  }, []);
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame || typeof IntersectionObserver === "undefined" ||
+      typeof WebGL2RenderingContext === "undefined" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let cancelled = false;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      import("./dither-veil")
+        .then(({ default: Component }) => {
+          if (!cancelled) setDitherVeil(() => Component);
+        })
+        .catch(() => {
+          if (!cancelled) setWebglUnavailable(true);
+        });
+    }, { rootMargin: "250px" });
+    observer.observe(frame);
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+    };
   }, []);
 
   const revealAt = (event: PointerEvent<HTMLButtonElement>) => {
@@ -63,7 +69,7 @@ export function InteractiveSmileReveal({ DitherVeil, cleanSmileSrc }: Props) {
             Revele a naturalidade do <em className="font-normal text-[#667d70]">seu sorriso.</em>
           </h2>
           <p className="mt-7 max-w-[480px] text-[1.05rem] leading-[1.7] text-[#4d5a53]">
-            Explore uma simulação visual de como cor e proporção podem mudar a percepção do sorriso. Na prática, cada resultado começa com uma avaliação individual.
+            Explore uma simulação visual de como luz e cor podem mudar a percepção de um sorriso. Na prática, cada resultado começa com uma avaliação individual.
           </p>
           <a href="#contato" className="mt-9 inline-flex min-h-12 items-center gap-3 border-b border-[#123b34] text-[0.78rem] font-semibold tracking-[0.04em] text-[#123b34] transition-colors hover:text-[#38705f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
             Conversar sobre possibilidades <ArrowUpRight size={17} aria-hidden="true" />
@@ -74,23 +80,23 @@ export function InteractiveSmileReveal({ DitherVeil, cleanSmileSrc }: Props) {
           <button
             ref={frameRef}
             type="button"
-            className={`smile-veil-frame group relative block w-full overflow-hidden rounded-2xl border border-[#123b34]/10 bg-[#b9a184] text-left shadow-[0_28px_70px_rgba(16,43,38,0.16)] ${peeking ? "is-peeking" : ""} ${fullyRevealed ? "is-full" : ""}`}
-            aria-label={hasWebGL ? "Interagir com a simulação ilustrativa do sorriso" : fullyRevealed ? "Mostrar novamente a simulação original do sorriso" : "Revelar o resultado ilustrativo do sorriso"}
-            aria-pressed={hasWebGL ? undefined : fullyRevealed}
+            className={`smile-veil-frame group relative block w-full overflow-hidden rounded-2xl border border-[#123b34]/10 bg-[#b9a184] text-left shadow-[0_28px_70px_rgba(16,43,38,0.16)] ${peeking ? "is-peeking" : ""} ${fullyRevealed ? "is-full" : ""} ${webglReady ? "has-webgl" : ""}`}
+            aria-label={fullyRevealed ? "Restaurar a simulação ilustrativa do sorriso" : "Revelar a imagem ilustrativa do sorriso"}
+            aria-pressed={fullyRevealed}
             onPointerEnter={revealAt}
             onPointerMove={revealAt}
             onPointerDown={revealAt}
             onPointerLeave={linger}
             onClick={() => {
               if (!hasInteracted) setHasInteracted(true);
-              if (!hasWebGL) setFullyRevealed((value) => !value);
+              setFullyRevealed((value) => !value);
             }}
           >
-            {DitherVeil && cleanSmileSrc ? (
+            <span className="smile-veil-before" aria-hidden="true" />
+            <span className="smile-veil-clean" aria-hidden="true" />
+            {DitherVeil && !webglUnavailable && (
               <DitherVeil
                 src={cleanSmileSrc}
-                fit="cover"
-                pattern="noise"
                 pixelSize={2.5}
                 levels={3}
                 inkColor="#5c432b"
@@ -101,13 +107,13 @@ export function InteractiveSmileReveal({ DitherVeil, cleanSmileSrc }: Props) {
                 linger={3.5}
                 rimColor="#ffffff"
                 rim={0.1}
-                clickBurst
+                fullyRevealed={fullyRevealed}
+                onReady={() => setWebglReady(true)}
+                onFailure={() => {
+                  setWebglReady(false);
+                  setWebglUnavailable(true);
+                }}
               />
-            ) : (
-              <>
-                <span className="smile-veil-before" aria-hidden="true" />
-                <span className="smile-veil-clean" aria-hidden="true" />
-              </>
             )}
             {!hasInteracted && (
               <span className="smile-veil-hint pointer-events-none absolute left-1/2 top-1/2 z-10 w-max max-w-[85%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/25 bg-[#102b26]/85 px-5 py-3 text-center text-xs font-medium tracking-[0.06em] text-white shadow-lg">
