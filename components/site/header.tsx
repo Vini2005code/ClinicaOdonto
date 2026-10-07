@@ -19,9 +19,8 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [specialtiesOpen, setSpecialtiesOpen] = useState(false);
   useEffect(() => {
-    let compactState = window.scrollY > 42;
+    let compactState = false;
     let frame = 0;
-    setCompact(compactState);
     const update = () => {
       frame = 0;
       const next = window.scrollY > 42;
@@ -33,6 +32,7 @@ export function Header() {
       if (!frame) frame = window.requestAnimationFrame(update);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
+    frame = window.requestAnimationFrame(update);
     return () => {
       window.removeEventListener("scroll", onScroll);
       if (frame) window.cancelAnimationFrame(frame);
