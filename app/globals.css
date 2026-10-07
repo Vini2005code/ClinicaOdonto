@@ -142,3 +142,14 @@ html{scroll-padding-top:78px} :focus-visible{outline:2px solid var(--focus);outl
 .need-result>span{color:#c8d9d3}
 .need-result p{color:rgba(255,255,255,.84)}
 .need-result .text-link{border-color:rgba(255,255,255,.62)}
+
+.smile-veil-frame{aspect-ratio:1.23/1;cursor:crosshair;touch-action:pan-y;--reveal-x:50%;--reveal-y:50%}
+.smile-veil-before,.smile-veil-clean{position:absolute;inset:0;display:block;background-image:url('/images/caso-aura.webp');background-size:200% 100%;background-repeat:no-repeat}
+.smile-veil-before{background-position:left center;filter:saturate(.8) brightness(.87)}
+.smile-veil-clean{background-position:right center;clip-path:circle(0 at var(--reveal-x) var(--reveal-y));transition:clip-path .38s ease}
+.smile-veil-frame.is-peeking .smile-veil-clean{clip-path:circle(145px at var(--reveal-x) var(--reveal-y));transition:none}
+.smile-veil-frame.is-full .smile-veil-clean{clip-path:circle(150vmax at var(--reveal-x) var(--reveal-y));transition:clip-path .38s ease}
+.smile-veil-hint{animation:smileHint 2.6s ease-in-out infinite}
+@keyframes smileHint{50%{transform:translate(-50%,-50%) scale(1.035)}}
+@media(max-width:640px){.smile-veil-frame{aspect-ratio:4/5}.smile-veil-frame.is-peeking .smile-veil-clean{clip-path:circle(110px at var(--reveal-x) var(--reveal-y))}}
+@media(prefers-reduced-motion:reduce){.smile-veil-hint{animation:none}.smile-veil-clean{transition:none!important}}

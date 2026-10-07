@@ -7,7 +7,7 @@ import { PatientJourney } from "@/components/site/patient-journey";
 import { PatientNeeds } from "@/components/site/patient-needs";
 import { TreatmentCard } from "@/components/site/treatment-card";
 import { VideoSection } from "@/components/site/video-section";
-import { BeforeAfterSlider } from "@/components/site/before-after-slider";
+import { InteractiveSmileReveal } from "@/components/site/interactive-smile-reveal";
 import { WhyAura } from "@/components/site/metrics";
 import { ContactForm } from "@/components/site/contact-form";
 import { RevealObserver } from "@/components/site/reveal-observer";
@@ -21,7 +21,7 @@ export default function AuraExperience() {
     <PatientNeeds />
     <section className="treatments section" id="tratamentos" data-reveal><div className="section-head"><div><p className="eyebrow">Tratamentos</p><h2>Cuidado integrado,<br />resultados naturais.</h2></div><p>Especialidades que se conectam em um único planejamento.</p></div><div className="treatment-grid">{treatments.map(t => <TreatmentCard key={t.title} treatment={t} />)}</div></section>
     <VideoSection />
-    <section className="results section-dark" id="resultados" data-reveal><div className="section-head light"><div><p className="eyebrow light">Resultados</p><h2>Naturalidade<br />que se percebe.</h2></div><p>Caso ilustrativo para demonstração do projeto. Resultados clínicos reais variam conforme cada paciente.</p></div><BeforeAfterSlider /><div className="case-meta"><div><span>Caso 01</span><strong>Harmonização do sorriso</strong></div><div><span>Abordagem</span><strong>Planejamento digital + cerâmica</strong></div><div><span>Objetivo</span><strong>Proporção, luminosidade e naturalidade</strong></div></div></section>
+    <InteractiveSmileReveal />
     <section className="technology section" data-reveal><div className="tech-lead"><p className="eyebrow">Tecnologia a serviço do cuidado</p><h2>Mais informação.<br />Decisões mais precisas.</h2><p>Na AURA, tecnologia não substitui o olhar humano. Ela torna o diagnóstico mais claro, o planejamento mais previsível e a experiência mais confortável.</p></div><div className="tech-points"><article><span>01</span><h3>Veja antes de começar</h3><p>Escaneamento e simulação digital ajudam você a compreender possibilidades com clareza.</p></article><article><span>02</span><h3>Menos etapas, mais conforto</h3><p>Fluxos digitais reduzem moldagens, ajustes e o tempo necessário em consultório.</p></article><article><span>03</span><h3>Um plano exclusivamente seu</h3><p>Dados clínicos e imagem trabalham juntos para orientar escolhas mais seguras.</p></article></div></section>
     <WhyAura />
     <section className="specialists section" id="especialistas" data-reveal><div className="section-head"><div><p className="eyebrow">Especialistas</p><h2>Excelência é<br />um trabalho coletivo.</h2></div><p>Um time multidisciplinar que compartilha casos, decisões e um mesmo padrão de cuidado.</p></div><div className="team-visual"><Image src="/images/especialistas-aura.webp" alt="Equipe demonstrativa de especialistas da AURA" fill sizes="(max-width: 980px) 100vw, 84vw" /></div><div className="profiles">{professionals.map((p, i) => <article key={p.name}><span>0{i + 1}</span><h3>{p.name}</h3><strong>{p.role}</strong><p>{p.formation}</p><small>{p.cro}</small></article>)}</div><p className="demo-note">Profissionais, formações e registros são fictícios e fazem parte deste projeto demonstrativo.</p></section>
