@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-const siteUrl = "https://aura-odontologia-avancada.riosvini42.chatgpt.site";
+const siteUrl = process.env.SITE_ID && process.env.URL
+  ? process.env.URL
+  : "https://aura-odontologia-avancada.riosvini42.chatgpt.site";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
