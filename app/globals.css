@@ -144,14 +144,16 @@ html{scroll-padding-top:78px} :focus-visible{outline:2px solid var(--focus);outl
 .need-result .text-link{border-color:rgba(255,255,255,.62)}
 
 .smile-veil-frame{aspect-ratio:1.23/1;cursor:crosshair;touch-action:pan-y;--reveal-x:50%;--reveal-y:50%}
-.smile-veil-before,.smile-veil-clean{position:absolute;inset:0;display:block;background-image:url('/images/sorriso-editorial-aura.webp');background-size:cover;background-position:center;background-repeat:no-repeat}
-.smile-veil-before{filter:sepia(.48) saturate(.6) brightness(.82)}
-.smile-veil-clean{clip-path:circle(0 at var(--reveal-x) var(--reveal-y));transition:clip-path .38s ease}
-.smile-veil-canvas{position:absolute;inset:0;z-index:1;width:100%;height:100%;pointer-events:none}
-.smile-veil-frame.has-webgl .smile-veil-before,.smile-veil-frame.has-webgl .smile-veil-clean{visibility:hidden}
+.smile-veil-before,.smile-veil-clean{position:absolute;inset:0;display:block;background-size:cover;background-position:center;background-repeat:no-repeat}
+.smile-veil-before{background-image:url('/images/sorriso-editorial-aura-antes.webp')}
+.smile-veil-clean{background-image:url('/images/sorriso-editorial-aura.webp');clip-path:circle(0 at var(--reveal-x) var(--reveal-y));transition:clip-path .28s ease}
 .smile-veil-frame.is-peeking .smile-veil-clean{clip-path:circle(145px at var(--reveal-x) var(--reveal-y));transition:none}
-.smile-veil-frame.is-full .smile-veil-clean{clip-path:circle(150vmax at var(--reveal-x) var(--reveal-y));transition:clip-path .38s ease}
+.smile-veil-frame.is-full .smile-veil-clean{clip-path:circle(150vmax at var(--reveal-x) var(--reveal-y));transition:clip-path .28s ease}
+.smile-veil-after-label{opacity:0;transition:opacity .2s ease}
+.smile-veil-frame.is-peeking .smile-veil-after-label,.smile-veil-frame.is-full .smile-veil-after-label{opacity:1}
+.smile-veil-before-label{transition:opacity .2s ease}
+.smile-veil-frame.is-full .smile-veil-before-label{opacity:0}
 .smile-veil-hint{animation:smileHint 2.6s ease-in-out infinite}
 @keyframes smileHint{50%{transform:translate(-50%,-50%) scale(1.035)}}
 @media(max-width:640px){.smile-veil-frame{aspect-ratio:4/5}.smile-veil-frame.is-peeking .smile-veil-clean{clip-path:circle(110px at var(--reveal-x) var(--reveal-y))}}
-@media(prefers-reduced-motion:reduce){.smile-veil-hint{animation:none}.smile-veil-clean{transition:none!important}}
+@media(prefers-reduced-motion:reduce){.smile-veil-hint{animation:none}.smile-veil-clean,.smile-veil-after-label,.smile-veil-before-label{transition:none!important}}
