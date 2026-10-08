@@ -15,7 +15,7 @@ export function BookingButton() {
         whileTap={reduceMotion ? undefined : { scale: 0.98 }}
         transition={{ duration: 0.2 }}
       >
-        <span>Agendar uma conversa</span>
+        <span>Explorar contato</span>
         <ArrowUpRight size={17} aria-hidden="true" />
       </m.a>
     </LazyMotion>

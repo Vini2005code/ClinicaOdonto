@@ -60,8 +60,8 @@ export function Header() {
       </div>
       {links.map(([label, href]) => <a key={href} href={href}>{label}</a>)}
     </nav>
-    <a className="nav-cta" href="#contato">Agendar conversa</a>
+    <a className="nav-cta" href="#contato">Explorar contato</a>
     <button className="menu-btn" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="mobile-menu" aria-label={open ? "Fechar menu" : "Abrir menu"}>{open ? <X /> : <Menu />}</button>
-    {open && <div className="mobile-menu" id="mobile-menu"><details><summary>Especialidades</summary>{specialties.map(item => <a href={item.href} key={item.title} onClick={() => setOpen(false)}>{item.title}</a>)}</details>{links.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)}>{label}</a>)}<a className="button" href="#contato" onClick={() => setOpen(false)}>Agendar conversa</a></div>}
+    {open && <div className="mobile-menu" id="mobile-menu"><details><summary>Especialidades</summary>{specialties.map(item => <a href={item.href} key={item.title} onClick={() => setOpen(false)}>{item.title}</a>)}</details>{links.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)}>{label}</a>)}<a className="button" href="#contato" onClick={() => setOpen(false)}>Explorar contato</a></div>}
   </header>;
 }

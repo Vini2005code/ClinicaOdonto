@@ -29,7 +29,7 @@ export function Hero() {
       <Image src="/images/hero-aura.webp" alt="Dentista da AURA apresentando um diagnóstico digital a uma paciente" fill priority unoptimized sizes="100vw" className="hero-image" />
       <div className="hero-wash" />
       <div className="hero-content">
-        <p className="eyebrow light">Diagnóstico · Planejamento · Cuidado</p>
+        <p className="eyebrow light">Projeto conceito · Clínica fictícia</p>
         <h1 ref={titleRef} className="hero-title" aria-label="Precisão clínica. Naturalidade em cada resultado.">
           <span className="hero-title-line" aria-hidden="true">{firstLine.map((word) => <span data-hero-word key={word}>{word} </span>)}</span>
           <span className="hero-title-line hero-highlight" aria-hidden="true">{secondLine.map((word) => <span data-hero-word key={word}>{word} </span>)}</span>
